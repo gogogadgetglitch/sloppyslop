@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Counter</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            text-align: center;
+            min-width: 400px;
+        }
+        
+        .counter {
+            font-size: 48px;
+            font-weight: bold;
+            color: #333;
+            margin: 20px 0;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .label {
+            font-size: 24px;
+            color: #666;
+        }
+        
+        button {
+            margin-top: 20px;
+            padding: 12px 24px;
+            font-size: 16px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: #5568d3;
+        }
+        
+        button:active {
+            background: #4451b8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="counter" id="counter">0</div>
+        <div class="label">children have died since you loaded this page.</div>
+        <button id="verboseBtn" onclick="toggleVerbose()">Enable Verbose</button>
+    </div>
+
+    <script>
+        let count = 0;
+        let verbose = false;
+
+        function formatNumber(num) {
+            return num.toLocaleString('en-US');
+        }
+
+        function numberToWords(num) {
+            if (num === 0) return 'zero';
+            
+            const ones = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
+            const tens = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+            const teens = ['ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
+            
+            function convertHundreds(n) {
+                let result = '';
+                
+                if (n >= 100) {
+                    result += ones[Math.floor(n / 100)] + ' hundred';
+                    n %= 100;
+                    if (n > 0) result += ' ';
+                }
+                
+                if (n >= 10 && n < 20) {
+                    result += teens[n - 10];
+                } else {
+                    if (n >= 20) {
+                        result += tens[Math.floor(n / 10)];
+                        n %= 10;
+                        if (n > 0) result += '-';
+                    }
+                    if (n > 0 && n < 10) {
+                        result += ones[n];
+                    }
+                }
+                
+                return result;
+            }
+            
+            if (num < 0) return 'negative ' + numberToWords(-num);
+            if (num < 1000) return convertHundreds(num);
+            
+            const billions = Math.floor(num / 1000000000);
+            const millions = Math.floor((num % 1000000000) / 1000000);
+            const thousands = Math.floor((num % 1000000) / 1000);
+            const remainder = num % 1000;
+            
+            let result = '';
+            
+            if (billions > 0) {
+                result += convertHundreds(billions) + ' billion';
+                if (millions > 0 || thousands > 0 || remainder > 0) result += ' ';
+            }
+            
+            if (millions > 0) {
+                result += convertHundreds(millions) + ' million';
+                if (thousands > 0 || remainder > 0) result += ' ';
+            }
+            
+            if (thousands > 0) {
+                result += convertHundreds(thousands) + ' thousand';
+                if (remainder > 0) result += ' ';
+            }
+            
+            if (remainder > 0) {
+                result += convertHundreds(remainder);
+            }
+            
+            return result.trim();
+        }
+
+        function updateCounter() {
+            count++;
+            const counterElement = document.getElementById('counter');
+            
+            if (verbose) {
+                counterElement.textContent = numberToWords(count);
+            } else {
+                counterElement.textContent = formatNumber(count);
+            }
+        }
+
+        function toggleVerbose() {
+            verbose = !verbose;
+            const btn = document.getElementById('verboseBtn');
+            btn.textContent = verbose ? 'Disable Verbose' : 'Enable Verbose';
+            
+            // Update the display immediately
+            const counterElement = document.getElementById('counter');
+            if (verbose) {
+                counterElement.textContent = numberToWords(count);
+            } else {
+                counterElement.textContent = formatNumber(count);
+            }
+        }
+
+        // Start the counter - increment every 4.4 seconds
+        setInterval(updateCounter, 4400);
+    </script>
+</body>
+</html>
